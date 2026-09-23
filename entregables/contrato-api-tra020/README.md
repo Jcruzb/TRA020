@@ -1,12 +1,12 @@
 # API TRA020 — Paquete para el proveedor
 
-Versión propuesta 1.0 · 23/09/2026 · Pendiente de acuerdo con el proveedor.
+Versión documental revisada 1.1 · 23/09/2026 · Pendiente de acuerdo con el proveedor.
 
 ## Qué necesitamos
 
-Una API de lectura que permita buscar una empresa por nombre o NIF y obtener todos sus vehículos, consumos, kilómetros, dispositivos, registros de repostaje y documentos asociados. La aplicación seleccionará todos o algunos vehículos para preparar un expediente y sus documentos.
+Una API de lectura para buscar empresas por nombre o NIF y consultar sus vehículos diésel, consumos, kilómetros, dispositivos, repostajes y documentos asociados. El objetivo es disponer de información verificable para la documentación TRA020.
 
-No solicitamos que el proveedor genere expedientes ZIP, firme documentos, implemente nuestra interfaz o almacene nuestro historial. Necesitamos datos trazables y los originales documentales que ya gestiona.
+Se solicitan datos y documentos originales, no servicios de firma ni elaboración del expediente final. En este documento, «proveedor» significa la entidad que suministra la API.
 
 ## Qué leer y en qué orden
 
@@ -16,7 +16,7 @@ No solicitamos que el proveedor genere expedientes ZIP, firme documentos, implem
 4. `CAMPOS_ANEXO.md`: claves administrativas para precargar el Anexo I cuando dispongan de información confirmada.
 5. `ejemplos/error.json`: formato de error.
 
-Los ejemplos ilustran la estructura; los requisitos escritos prevalecen. Las propiedades adicionales descritas como necesarias en el contrato deben incorporarse aunque el prototipo todavía no las consuma. No copiar valores ficticios como valores por defecto.
+Los ejemplos ilustran la estructura; los requisitos escritos prevalecen. Los ejemplos incluyen valores desconocidos e incidencias expresas: muestran también cómo comunicar información pendiente. No copiar valores ficticios como valores por defecto.
 
 ## Entrega que esperamos del proveedor
 
@@ -34,11 +34,11 @@ Los ejemplos ilustran la estructura; los requisitos escritos prevalecen. Las pro
 |---|---|
 | Clientes, vehículos, consumos, km, repostajes, dispositivos y evidencias de retroalimentación | Proveedor API |
 | Facturas originales y certificado del parámetro r | Proveedor API; confirmar disponibilidad y alcance |
-| Certificado del software e informe de requisitos técnicos comunes | Los facilitaremos para integrarlos como archivos fijos |
-| Anexo I y Compromiso del Gerente | Aplicación; revisión y firma del cliente |
-| Excel y PDF del cálculo | Aplicación; metodología pendiente de validación definitiva |
+| Certificado del software e informe de requisitos técnicos comunes | Entrega documental por separado |
+| Anexo I y Compromiso del Gerente | Preparación y firma por las partes correspondientes |
+| Excel y PDF del cálculo | Preparación documental; metodología a validar |
 | Convenios, dictamen y otros justificantes | Fuera de esta primera integración; carpetas vacías mientras falten |
-| Historial y documentos firmados | Aplicación local, sin base de datos |
+
 
 ## Puntos a confirmar antes de desarrollar
 
@@ -48,4 +48,6 @@ Los ejemplos ilustran la estructura; los requisitos escritos prevalecen. Las pro
 4. ¿La autenticación se hará mediante un servicio intermediario o sesiones de usuario de corta duración?
 5. ¿Necesitan paginar el detalle? Si es así, acordar el mecanismo de snapshot antes de implementar.
 
-El frontend actual trabaja con simulaciones. Este paquete define la integración a construir; no afirma que estos endpoints estén implementados ni certifica cumplimiento normativo.
+Este paquete es una propuesta de intercambio de información, pendiente de acuerdo. No presupone que el servicio ya exista. Los datos de ejemplo son ficticios y no acreditan una actuación real.
+
+Para entender los términos menos habituales, consultar el apartado 12 de `CONTRATO_API.md`. El propietario inicial es el cliente de Gestracking. La pregunta «¿Gestracking compró el ahorro?» se responde con `gestrackingPurchasedSavings`; su efecto se explica en el apartado 13 del contrato y en `CAMPOS_ANEXO.md`.
