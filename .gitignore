@@ -1,0 +1,9 @@
+node_modules/
+tmp/
+.DS_Store
+historial.json
+historial.anterior.json
+TRA020_archivos/
+dist/historial.json
+dist/historial.anterior.json
+dist/TRA020_archivos/

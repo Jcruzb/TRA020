@@ -1,0 +1,23 @@
+[
+  {
+    "id": "CLI-001",
+    "name": "Transportes Sierra Norte S.L.",
+    "nif": "B12345678",
+    "city": "Madrid",
+    "vehicles": 24
+  },
+  {
+    "id": "CLI-002",
+    "name": "Logística Mediterránea S.L.",
+    "nif": "B87654321",
+    "city": "Valencia",
+    "vehicles": 120
+  },
+  {
+    "id": "CLI-003",
+    "name": "Flota Nacional Demo S.A.",
+    "nif": "A11223344",
+    "city": "Madrid",
+    "vehicles": 500
+  }
+]

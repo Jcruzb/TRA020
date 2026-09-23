@@ -1,0 +1,27 @@
+{
+  "name": "tra020-expedientes-masivos",
+  "version": "0.3.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "npm run prepare:pdf && vite build",
+    "preview": "vite preview",
+    "open": "vite preview --open",
+    "prepare:pdf": "node scripts/embed-template.mjs",
+    "test": "node --test tests/*.test.js"
+  },
+  "dependencies": {
+    "@vitejs/plugin-react": "latest",
+    "jspdf": "latest",
+    "jszip": "latest",
+    "pdf-lib": "^1.17.1",
+    "react": "latest",
+    "react-dom": "latest",
+    "xlsx": "latest"
+  },
+  "devDependencies": {
+    "vite": "latest",
+    "vite-plugin-singlefile": "^2.3.3"
+  }
+}
