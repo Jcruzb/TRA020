@@ -1,6 +1,8 @@
 # Contrato funcional y técnico de API TRA020
 
-Versión documental revisada 1.1 · 23/09/2026. Base ilustrativa: `https://api.proveedor.example/v1`. Los nombres se pueden adaptar mediante un adaptador si se conserva el contenido y las garantías acordadas.
+Versión documental revisada 1.2 · 23/09/2026. Base ilustrativa: `https://api.proveedor.example/v1`. Los nombres se pueden adaptar mediante un adaptador si se conserva el contenido y las garantías acordadas.
+
+Para la explicación en lenguaje habitual de cada bloque y su finalidad, leer primero [GUIA_DE_DATOS.md](GUIA_DE_DATOS.md). Las reglas de conexión siguientes se dirigen al equipo técnico.
 
 ## 1. Flujo
 
@@ -56,7 +58,7 @@ Propuesta inicial: detalle completo en una respuesta. Si el volumen exige pagina
 | `data.provider` | objeto | Origen y trazabilidad de datos
 | `data.vehicles` | array | Todos los vehículos del cliente en el ámbito solicitado |
 | `data.declaration` | objeto | Datos confirmados del Anexo I; ver apartado 7 |
-| `data.evidence` | array | Inventario de evidencias; puede estar vacío
+| `data.evidence` | array | Índice de factura de inversión/servicio y certificado r; referencia los archivos de documents
 | `data.documents` | objeto | Facturas de la inversión y certificado del cálculo de r; ver apartado 8 |
 | `data.quality` | objeto | Añadir: `complete` boolean, `issues` array de `{code,path,message}`
 
@@ -169,7 +171,7 @@ La entrega se considera integrable tras acordar los puntos abiertos del README, 
 | `snapshotId` | Código de una entrega concreta. Permite que los documentos descargados después correspondan a los mismos datos, aunque el sistema se actualice. | `SNAP-DEMO-001`: lo genera el proveedor; no lo tiene que inventar el cliente manualmente. |
 | `generatedAt` | Momento en que se preparó la respuesta. | No es la fecha de instalación ni la de una factura. |
 | `provider` | Empresa o servicio que suministra los datos y cómo los obtuvo. | No significa propietario del ahorro ni comprador. |
-| `evidence` | Lista de justificantes que respaldan una afirmación. | Un certificado pendiente no equivale a un certificado entregado. Su estado y referencia permiten saberlo. |
+| `evidence` | Índice de dos comprobaciones: inversión/servicio respaldado por factura y cálculo de r respaldado por certificado. | EV-001 apunta a la factura DOC-001 y EV-002 al certificado DOC-002; no se solicita duplicar archivos. |
 | `quality` | Avisos de información incompleta. | `complete: false` con una explicación si falta la fuente del kilometraje anual. |
 | `path` | Dirección de un dato dentro de la respuesta. | `vehicles[0].annualKmSource` señala el origen del kilometraje del primer vehículo. |
 | `null` | No se conoce el dato o no se ha confirmado. | No confundir con `0`: cero kilómetros es un valor conocido. |
@@ -186,9 +188,9 @@ La entrega se considera integrable tras acordar los puntos abiertos del README, 
 | `p95` | Tiempo máximo observado en el 95 % de las consultas medidas. | Es un objetivo a negociar, no un requisito normativo. |
 | `requestId` | Código de una consulta que ha dado error. | Sirve para que soporte encuentre el problema. |
 
-### Evidencias y campos auxiliares del ejemplo
+### Índice de factura y certificado: campos auxiliares del ejemplo
 
-`evidence[]` contiene `id` (código), `name` (qué acredita), `source` (quién lo emite), `status` (`available`, `pending` o `unavailable`) y `documentId` (referencia a un documento descargable, o null). Los documentos de esta fase están en `documents`; no se exige una segunda descarga de la misma factura.
+`evidence[]` contiene `id` (código), `name` (inversión/servicio o cálculo de r que documenta), `source` (quién lo emite), `status` (`available`, `pending` o `unavailable`) y `documentId` (referencia a un documento descargable, o null). Los documentos de esta fase están en `documents`; no se exige una segunda descarga de la misma factura. EV-001 referencia DOC-001 (factura de inversión/servicio) y EV-002 referencia DOC-002 (certificado r). Su estado debe coincidir. No se solicitan comprobaciones genéricas adicionales. El índice puede derivarse de documents sin doble carga manual.
 
 `declarationSource`: `confirmedAt` es cuándo se confirmó la declaración, `source` indica su procedencia y `reference` el documento o referencia que la acredita. Todos pueden ser null si no se dispone de confirmación.
 

@@ -753,14 +753,14 @@
     "evidence": [
       {
         "id": "EV-001",
-        "name": "Factura de la inversión",
+        "name": "Inversión o servicio asociado a la actuación: factura",
         "source": null,
         "status": "pending",
         "documentId": "DOC-001"
       },
       {
         "id": "EV-002",
-        "name": "Certificado del cálculo de r",
+        "name": "Cálculo del parámetro r: certificado",
         "source": null,
         "status": "pending",
         "documentId": "DOC-002"

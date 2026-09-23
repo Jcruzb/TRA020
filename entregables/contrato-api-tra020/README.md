@@ -1,6 +1,6 @@
 # API TRA020 — Paquete para el proveedor
 
-Versión documental revisada 1.1 · 23/09/2026 · Pendiente de acuerdo con el proveedor.
+Versión documental revisada 1.2 · 23/09/2026 · Pendiente de acuerdo con el proveedor.
 
 ## Qué necesitamos
 
@@ -10,11 +10,11 @@ Se solicitan datos y documentos originales, no servicios de firma ni elaboració
 
 ## Qué leer y en qué orden
 
-1. `CONTRATO_API.md`: endpoints, datos, reglas y criterios de aceptación.
-2. `ejemplos/busqueda.json`: respuesta de búsqueda.
-3. `ejemplos/cliente.json`: respuesta ficticia de detalle con dos vehículos; no representa personas, facturas ni certificados reales.
-4. `CAMPOS_ANEXO.md`: claves administrativas para precargar el Anexo I cuando dispongan de información confirmada.
-5. `ejemplos/error.json`: formato de error.
+1. [GUIA_DE_DATOS.md](GUIA_DE_DATOS.md): qué pedimos, para qué sirve y quién debe responder, con explicaciones sin conocimientos de programación.
+2. `ejemplos/cliente.json` y `ejemplos/busqueda.json`: ejemplos ficticios para localizar los nombres de los campos.
+3. `CAMPOS_ANEXO.md`: datos administrativos y de las partes.
+4. `CONTRATO_API.md`: detalles para el equipo técnico encargado de la conexión.
+5. `ejemplos/error.json`: ejemplo de respuesta cuando una consulta falla.
 
 Los ejemplos ilustran la estructura; los requisitos escritos prevalecen. Los ejemplos incluyen valores desconocidos e incidencias expresas: muestran también cómo comunicar información pendiente. No copiar valores ficticios como valores por defecto.
 
@@ -50,4 +50,4 @@ Los ejemplos ilustran la estructura; los requisitos escritos prevalecen. Los eje
 
 Este paquete es una propuesta de intercambio de información, pendiente de acuerdo. No presupone que el servicio ya exista. Los datos de ejemplo son ficticios y no acreditan una actuación real.
 
-Para entender los términos menos habituales, consultar el apartado 12 de `CONTRATO_API.md`. El propietario inicial es el cliente de Gestracking. La pregunta «¿Gestracking compró el ahorro?» se responde con `gestrackingPurchasedSavings`; su efecto se explica en el apartado 13 del contrato y en `CAMPOS_ANEXO.md`.
+Para entender los términos menos habituales, consultar `GUIA_DE_DATOS.md`. El propietario inicial es el cliente de Gestracking. La pregunta «¿Gestracking compró el ahorro?» se responde con `gestrackingPurchasedSavings`; su efecto se explica en el apartado 13 del contrato y en `CAMPOS_ANEXO.md`.
