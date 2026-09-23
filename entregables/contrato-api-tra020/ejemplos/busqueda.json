@@ -1,0 +1,12 @@
+{
+  "items": [
+    {
+      "id": "CLI-001",
+      "name": "Transportes Sierra Norte S.L.",
+      "nif": "B12345678",
+      "city": "Madrid",
+      "vehicles": 2
+    }
+  ],
+  "nextCursor": null
+}

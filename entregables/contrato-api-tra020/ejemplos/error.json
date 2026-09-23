@@ -1,0 +1,8 @@
+{
+  "error": {
+    "code": "CLIENT_NOT_FOUND",
+    "message": "Cliente no encontrado.",
+    "requestId": "req-demo-001",
+    "details": []
+  }
+}
