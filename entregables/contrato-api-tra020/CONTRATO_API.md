@@ -4,13 +4,13 @@ Versión propuesta 1.0 · 23/09/2026. Base ilustrativa: `https://api.proveedor.e
 
 ## 1. Flujo
 
-Buscar cliente → seleccionar resultado → recuperar un snapshot completo de datos → seleccionar vehículos en la app → obtener documentos correspondientes → preparar cálculo y documentos → revisión y firma → ZIP local. La primera integración prepara una actuación por trabajo. Un cliente puede dar lugar a varios trabajos.
+Buscar cliente → seleccionar resultado → recuperar un snapshot completo de datos → seleccionar vehículos en la app → obtener documentos correspondientes → preparar cálculo y documentos → revisión y firma → ZIP local.
 
 La API es de lectura. No se requieren endpoints de subida de firmados ni de creación del expediente.
 
 ## 2. Transporte y autenticación
 
-HTTPS y JSON UTF-8. Cabeceras `Accept: application/json` y `Authorization: Bearer <token>`. El mecanismo de emisión, scopes, expiración y renovación se acordará con el proveedor. Las respuestas deben restringirse a los clientes autorizados; conocer un ID no concede acceso.
+HTTPS y JSON UTF-8. Cabeceras `Accept: application/json` y `Authorization: Bearer <token>`. Las respuestas deben restringirse a los clientes autorizados; conocer un ID no concede acceso.
 
 No incluir una clave permanente ni un secreto de servicio en el HTML. La integración deberá usar un intermediario seguro o un flujo de usuario con tokens de corta duración. El endpoint puede quedar integrado en código. El HTML actual funciona localmente; no suponer que CORS desde `file://` resuelve la autenticación. La modalidad de conexión es un punto de acuerdo previo.
 
@@ -45,20 +45,20 @@ Propuesta inicial: detalle completo en una respuesta. Si el volumen exige pagina
 
 | Ruta | Tipo | Obligación y significado |
 |---|---|---|
-| `schemaVersion` | string | Obligatorio; versión del contrato |
-| `snapshotId` | string | Obligatorio; revisión coherente de datos/documentos |
+| `schemaVersion` | string | Obligatorio; versión del contrato | NO ENTIENDO QUE ES
+| `snapshotId` | string | Obligatorio; revisión coherente de datos/documentos | NO ENTIENDO QUE ES
 | `generatedAt` | datetime | Obligatorio; fecha de extracción |
 | `data.client` | objeto | Obligatorio; `id`, `name`, `nif`, `city`, `vehicles` (cantidad total) |
 | `data.expediente` | objeto | `codigo`, `nombre`, `comunidad`, `ano`, `direccion`, `referenciaCatastral`; valores administrativos desconocidos pueden ser null |
-| `data.owner` | objeto | Propietario inicial del ahorro; no asumir que coincide con gestor de flota sin confirmación |
-| `data.provider` | objeto | Origen y trazabilidad de datos |
+| `data.owner` | objeto | Propietario inicial del ahorro |
+| `data.provider` | objeto | Origen y trazabilidad de datos | NO ENTIENDO QUE ES
 | `data.vehicles` | array | Todos los vehículos del cliente en el ámbito solicitado |
 | `data.declaration` | objeto | Datos confirmados del Anexo I; ver apartado 7 |
-| `data.evidence` | array | Inventario de evidencias; puede estar vacío |
-| `data.documents` | objeto | Facturas y certificado r; ver apartado 8 |
-| `data.quality` | objeto | Añadir: `complete` boolean, `issues` array de `{code,path,message}`; no disponible en la simulación actual |
+| `data.evidence` | array | Inventario de evidencias; puede estar vacío | NO ENTIENDO QUE ES
+| `data.documents` | objeto | Facturas de la inversión y certificado del cálculo de r; ver apartado 8 |
+| `data.quality` | objeto | Añadir: `complete` boolean, `issues` array de `{code,path,message}`; no disponible en la simulación actual | NO ENTIENDO QUE ES
 
-`owner`: `razonSocial`, `nif`, `domicilio`, `telefono`, `email`, `representante`, `representanteNif`, `representanteDomicilio`, `representanteTelefono`, `representanteEmail`, `cargo`. Razón social y NIF necesarios para identificar al propietario; el resto puede ser null. Un contacto de la empresa no es automáticamente representante legal.
+`owner`: `razonSocial`, `nif`, `domicilio`, `telefono`, `email`, `representante`, `representanteNif`, `representanteDomicilio`, `representanteTelefono`, `representanteEmail`, `cargo`. Razón social y NIF necesarios para identificar al propietario; el resto puede ser null. Un contacto de la empresa no es automáticamente representante legal. Del propietario inicial del ahorro o de Gestrackin que puede ser el que compró el ahorro?
 
 `provider`: `nombre`, `extractedAt`, `apiVersion`, `feedbackMode` y, cuando estén acreditados, `retentionYears`, `iso27001`. Indicar origen de los datos y versión del proceso. No usar `iso27001: true` sin evidencia. Retención debe reflejar la capacidad real del proveedor, no un plazo inventado.
 
@@ -69,7 +69,7 @@ Propuesta inicial: detalle completo en una respuesta. Si el volumen exige pagina
 | `id`, `plate`, `vin` | string | ID, matrícula y bastidor; identificar faltantes |
 | `type`, `category`, `brand`, `model` | string | Tipo, categoría homologada, marca y modelo |
 | `year` | integer | Año conocido; null si falta |
-| `fuel` | enum | `diesel`, `gasoline`, `glp`, `natural_gas`; ampliar mediante acuerdo |
+| `fuel` | enum | `diesel`, `gasoline`, `glp`, `natural_gas`; ampliar mediante acuerdo | SIEMPRE ES DIESEL
 | `service` | string | Uso real del vehículo |
 | `deviceId`, `deviceModel`, `telematicName` | string | Identificación del sistema vinculado |
 | `installedAt`, `activatedAt` | date | Fechas reales de instalación y activación |
