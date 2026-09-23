@@ -7,7 +7,7 @@ import * as XLSX from 'xlsx';
 import { makeClientData, searchClients } from '../src/data/mockClients.js';
 import { createJob, reviseJob, selectedData, validateClientData } from '../src/domain/jobs.js';
 import { annexValues, missingAnnex } from '../src/domain/annexFields.js';
-import { declarationPdf, generateExport } from '../src/domain/expediente.js';
+import { declarationPdf, generateExport, calculationPdf, checkSize } from '../src/domain/expediente.js';
 import { LocalHistory, validateHistory } from '../src/domain/localHistory.js';
 
 test('Busqueda por NIF, nombre y acentos; respuestas independientes',()=>{
@@ -53,20 +53,23 @@ test('ZIP ordenado 500 vehiculos: binarios, nombres iguales, carpetas y rendimie
  const data=makeClientData('CLI-003');
  await assert.rejects(generateExport({kind:'ordered',data}),/Adjunta/);
  const file=new Uint8Array([37,80,68,70]);
- const result=await generateExport({kind:'ordered',data,signed:{anexo:{name:'firmado.pdf',bytes:file},commitment:{name:'firmado.pdf',bytes:file}}});
+ const result=await generateExport({kind:'ordered',data,signed:{anexo:{name:'firmado.pdf',bytes:file},commitment:{name:'firmado.pdf',bytes:file},calculation:{name:'calculo.pdf',bytes:file}}});
  t.diagnostic(`${result.elapsedMs} ms; ${result.bytes.length} bytes`);
  assert.ok(result.elapsedMs<30000);
  const zip=await JSZip.loadAsync(result.bytes);const names=Object.keys(zip.files);
- assert.ok(names.some(n=>n.endsWith('/ActuacionE1.zip')));
- assert.equal(names.filter(n=>n.endsWith('.zip') && n.includes('Actuacion')).length, 1);
- const actuation=await JSZip.loadAsync(await zip.file(names.find(n=>n.endsWith('/ActuacionE1.zip'))).async('uint8array'));
- const actuationNames=Object.keys(actuation.files);
- assert.ok(actuationNames.includes('AnexoE1.pdf'));
- assert.ok(actuation.files['E1-1- Convenio CAE/']?.dir);
- assert.ok(actuation.files['E1-2- Dictamen favorable e informe del verificador/']?.dir);
- assert.ok(actuation.files['E1-3- Documentos justificativos/']?.dir);
- assert.ok(actuation.files['E1-4- Otros documentos justificativos/']?.dir);
- assert.ok(actuationNames.includes('E1-3- Documentos justificativos/calculo-ahorro.xlsx'));
+ assert.equal(result.name,'ActuacionE1.zip');
+ assert.ok(!names.some(n=>n.includes('outputs')||n.endsWith('.zip')||n.endsWith('.json')||n.endsWith('.txt')));
+ assert.ok(zip.files['E1-1 Convenio CAE/E1-1 Convenio CAE/']?.dir);
+ assert.ok(zip.files['E1-2 Dictamen favorable/']?.dir);
+ assert.ok(zip.files['E1-4 Otros documentos justificativos/']?.dir);
+ assert.deepEqual(await zip.file('E1-3-2 Anexo subvenciones Genérico de Transporte/E1-3-2/anexo-i-firmado.pdf').async('uint8array'),file);
+ assert.deepEqual(await zip.file('E1-3-1 Formulario de cálculo del ahorro/E1-3-1-2 PDF/calculo-ahorro-firmado.pdf').async('uint8array'),file);
+ const workbook=XLSX.read(await zip.file('E1-3-5 Informe/informe-completo.xlsx').async('uint8array'));
+ assert.equal(XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]).length,500);
+ assert.throws(()=>checkSize(10_000_001,'archivo'),/10 MB/);
+ assert.doesNotThrow(()=>checkSize(10_000_000,'archivo'));
+ assert.throws(()=>checkSize(50_000_001,'total',50_000_000),/50 MB/);
+ await writeFile('tmp/pdfs/calculo-500.pdf',calculationPdf(data));
  await writeFile('tmp/pdfs/expediente-500.zip',result.bytes);
 });
 test('Exportacion individual, vacios y paquete previo con anexo oficial',async()=>{

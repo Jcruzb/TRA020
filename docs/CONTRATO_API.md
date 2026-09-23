@@ -42,3 +42,6 @@ Separar datos telemáticos de declaraciones que debe confirmar el propietario: r
 ## Integración futura
 
 Proveedor → backend autenticado → conservación de respuesta original y documentos → adaptador/validación → modelo interno → revisión y exportación. Registrar origen, versión y fecha de extracción, y evitar incluir secretos en respuestas exportadas. La app actual no admite binarios originales mediante el contrato JSON.
+
+## Adjuntos previstos para exportación
+El adaptador puede proporcionar `documents.invoices[]` con `bytes` (ArrayBuffer/Uint8Array) y `documents.rCertificate.bytes`. Cada factura crea E1-3-3-N factura N; sin bytes queda vacía. El adaptador debe resolver los originales y convertirlos a buffers antes del worker. Los buffers son transitorios: no serializarlos directamente en historial JSON; la integración persistente de originales sigue pendiente. `fixedDocuments` en expediente.js reserva los certificados software y técnico hasta recibir los originales.

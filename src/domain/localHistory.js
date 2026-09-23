@@ -10,7 +10,7 @@ export function validateHistory(history) {
     ids.add(job.id); validateClientData(job.data);
     if(job.selectedIds.some(id=>!job.data.vehicles.some(v=>v.id===id))) throw new Error('Hay vehículos seleccionados que no pertenecen al cliente.');
     for (const [id,file] of Object.entries(job.signed)) {
-      if(!['anexo','commitment'].includes(id) || !file?.path || !/^TRA020_archivos\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_.-]+$/.test(file.path) || !file.path.startsWith(`TRA020_archivos/${job.id}/`)) throw new Error('El historial contiene una ruta de adjunto inválida.');
+      if(!['anexo','commitment','calculation'].includes(id) || !file?.path || !/^TRA020_archivos\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_.-]+$/.test(file.path) || !file.path.startsWith(`TRA020_archivos/${job.id}/`)) throw new Error('El historial contiene una ruta de adjunto inválida.');
     }
   }
   return history;
@@ -58,7 +58,7 @@ export class LocalHistory {
     });
   }
   async saveAttachment(jobId,id,file){
-    if(!segment.test(jobId) || !['anexo','commitment'].includes(id))throw new Error('Adjunto inválido.');
+    if(!segment.test(jobId) || !['anexo','commitment','calculation'].includes(id))throw new Error('Adjunto inválido.');
     if(!file.size)throw new Error('El archivo está vacío.');
     const extension=file.name.toLowerCase().endsWith('.p7m')?'p7m':file.name.toLowerCase().endsWith('.pdf')?'pdf':null;
     if(!extension)throw new Error('Adjunta un PDF o un archivo P7M.');

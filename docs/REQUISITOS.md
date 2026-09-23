@@ -28,3 +28,13 @@ Los convenios, dictámenes, fichas y justificantes que no llegan de la API se cr
 El [Anexo I de MITECO](https://www.miteco.gob.es/content/dam/miteco/es/energia/files-1/Eficiencia/CAE/cat%C3%A1logo-vigente/Anexo%20I%20de%20las%20fichas_DR%20subvenciones.pdf) fue descargado e inspeccionado: cuatro páginas con campos AcroForm. Se conserva en `src/assets/`.
 
 La conversación inicial citó [BOE-A-2026-16993](https://www.boe.es/diario_boe/txt.php?id=BOE-A-2026-16993). Las reglas numéricas heredadas no se revalidaron normativamente en este cambio. Tampoco se dispone del repositorio Builder ni del modelo oficial del Compromiso del Gerente. No presentar esas partes como verificadas.
+
+## Exportación corregida (23/09/2026)
+
+La descarga final es directamente `ActuacionE1.zip`, sin envoltorio de expediente, outputs, manifiestos ni pendientes de texto. Una actuación por trabajo: los tres firmados corresponden a la selección completa y se invalidan al cambiarla.
+
+Carpetas: E1-1 Convenio CAE (subcarpetas E1-1 Convenio CAE y E1-2 Convenio de cesión de ahorro energético), E1-2 Dictamen favorable, E1-3-1 Formulario de cálculo del ahorro (E1-3-1-1 Excel y E1-3-1-2 PDF), E1-3-2 Anexo subvenciones Genérico de Transporte (subcarpeta E1-3-2), E1-3-3 Facturas, E1-3-4 Certificado del software, E1-3-5 Informe, E1-3-6 Certificado de cálculo parámetro r, E1-3-7 Informe de cumplimiento de requerimientos técnicos, E1-3-8 Compromiso del gerente y E1-4 Otros documentos justificativos. Los documentos no recibidos dejan carpetas vacías.
+
+Se exige cargar cálculo PDF, Anexo I y Compromiso firmados. Se preservan sus bytes. El PDF de cálculo es preliminar, no el formulario oficial pendiente. El informe Excel conserva todas las columnas.
+
+Guía local «Instrucciones para realizar la solicitud», apartado 7: 10 MB por fichero y 50 MB por envío. Se controlan binarios, volumen interno y ZIP final usando MB decimales conservadores; se bloquea el exceso. Los documentos añadidos a la sede fuera de la app no pueden contabilizarse automáticamente.

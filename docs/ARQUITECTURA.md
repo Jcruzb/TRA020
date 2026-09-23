@@ -45,3 +45,13 @@ Alertas: falta de dispositivo/fechas, periodos distintos de 90 días, variación
 ## ZIP
 
 Se ha alineado con la documentación de CAE Studio / Expediente Builder: `expedientes/<ID>/documentos/` para originales, evidencias y firmados; `expedientes/<ID>/outputs/` para resultados e historial. El paquete de solicitud estandarizada contiene un `ActuacionE<n>.zip` independiente por vehículo/actuación. Cada archivo contiene `AnexoE<n>.pdf`, `E<n>-1- ...`, `E<n>-2- ...`, `E<n>-3-1- ...`, `E<n>-3-2- ...` y `E<n>-4- ...`; lo no recibido queda como `.pendiente.txt`. `folderTemplate` se conserva para el workspace interno y documentos de soporte. El Excel principal usa `outputs/calculo-ahorro.xlsx`, igual que Builder. No incluye originales del proveedor ficticios ni afirma que estén disponibles.
+
+## Exportación corregida (23/09/2026)
+
+La descarga final es directamente `ActuacionE1.zip`, sin envoltorio de expediente, outputs, manifiestos ni pendientes de texto. Una actuación por trabajo: los tres firmados corresponden a la selección completa y se invalidan al cambiarla.
+
+Carpetas: E1-1 Convenio CAE (subcarpetas E1-1 Convenio CAE y E1-2 Convenio de cesión de ahorro energético), E1-2 Dictamen favorable, E1-3-1 Formulario de cálculo del ahorro (E1-3-1-1 Excel y E1-3-1-2 PDF), E1-3-2 Anexo subvenciones Genérico de Transporte (subcarpeta E1-3-2), E1-3-3 Facturas, E1-3-4 Certificado del software, E1-3-5 Informe, E1-3-6 Certificado de cálculo parámetro r, E1-3-7 Informe de cumplimiento de requerimientos técnicos, E1-3-8 Compromiso del gerente y E1-4 Otros documentos justificativos. Los documentos no recibidos dejan carpetas vacías.
+
+Se exige cargar cálculo PDF, Anexo I y Compromiso firmados. Se preservan sus bytes. El PDF de cálculo es preliminar, no el formulario oficial pendiente. El informe Excel conserva todas las columnas.
+
+Guía local «Instrucciones para realizar la solicitud», apartado 7: 10 MB por fichero y 50 MB por envío. Se controlan binarios, volumen interno y ZIP final usando MB decimales conservadores; se bloquea el exceso. Los documentos añadidos a la sede fuera de la app no pueden contabilizarse automáticamente.

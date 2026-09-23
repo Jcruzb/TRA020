@@ -46,29 +46,58 @@ function actuationData(data, vehicles, index) {
   return { ...data, expediente: { ...data.expediente, codigo: actuation, nombre: `${data.expediente.nombre} - actuación ${actuation}` }, vehicles };
 }
 
-async function generateActuationArchive(data, vehicles, index, annex, anexoBytes) {
-  const actuation = `E${index + 1}`;
-  const single = actuationData(data, vehicles, index);
+export const MAX_FILE_BYTES = 10_000_000;
+export const MAX_TOTAL_BYTES = 50_000_000;
+export function checkSize(size, name, limit = MAX_FILE_BYTES) {
+  if (size > limit) throw new Error(`${name} supera el límite de ${limit / 1_000_000} MB. Reduce su tamaño antes de generar el expediente.`);
+}
+export function calculationPdf(data) {
+  const doc = new jsPDF();
+  pdfHeader(doc, 'CÁLCULO DEL AHORRO', data.expediente);
+  pdfLines(doc, [`Cliente: ${data.owner.razonSocial} · NIF: ${data.owner.nif}`, `Vehículos: ${data.vehicles.length}`, `Ahorro anual total calculado: ${f(data.vehicles.reduce((sum,v)=>sum+evaluate(v).annualSaving,0))} kWh`, 'Cálculo preliminar de la aplicación. Pendiente del formulario oficial.', 'Detalle: CEF previo y posterior en kWh/100 km; ahorro anual en kWh.']);
+  let y=90;
+  const header=()=>{doc.setFontSize(9);['Matrícula','CEF previo','CEF posterior','r','Ahorro anual'].forEach((t,i)=>doc.text(t,[15,55,90,130,155][i],y));y+=8;};
+  header();
+  for(const v of data.vehicles){if(y>260){doc.addPage();y=20;header();}const x=evaluate(v);[v.plate,f(x.pre),f(x.post),x.r.toFixed(4),f(x.annualSaving)].forEach((t,i)=>doc.text(t,[15,55,90,130,155][i],y));y+=7;}
+  if(y>235){doc.addPage();y=25;}
+  pdfLines(doc,['Lugar y fecha: ____________________________________','Firmante: ________________________________________','Firma: ___________________________________________'],y+12);
+  return new Uint8Array(doc.output('arraybuffer'));
+}
+// Se sustituirán por los originales cuando los facilite el usuario.
+export const fixedDocuments = { software: null, technical: null };
+async function generateActuationArchive(data, signed) {
   const zip = new JSZip();
-  // La plantilla se genera una sola vez y se reutiliza como binario para que
-  // cientos de actuaciones no re-rendericen cuatro páginas PDF por vehículo.
-  // La relación concreta de vehículo queda en el manifiesto de cada actuación.
-  zip.file(`Anexo${actuation}.pdf`, anexoBytes);
-  // La sede exige carpetas numeradas y en el mismo orden de la ficha. Las
-  // carpetas sin documentos se conservan como entradas de directorio vacías.
-  const folders = {
-    convenio: `${actuation}-1- Convenio CAE/`,
-    dictamen: `${actuation}-2- Dictamen favorable e informe del verificador/`,
-    justificativos: `${actuation}-3- Documentos justificativos/`,
-    otros: `${actuation}-4- Otros documentos justificativos/`
-  };
-  Object.values(folders).forEach(path => zip.folder(path));
-  // La ficha oficial TRA020 se incorpora cuando el asset ministerial está
-  // disponible; el cálculo de ahorro de la actuación queda dentro de E<n>-3.
-  if (data.fichaTra020Bytes) zip.file(`${folders.justificativos}Ficha TRA020 v2.0.pdf`, data.fichaTra020Bytes);
-  zip.file(`${folders.justificativos}calculo-ahorro.xlsx`, fleetWorkbook({ ...single, vehicles }));
-  zip.file('MANIFIESTO_ACTUACION.json', JSON.stringify({ actuation, ficha: 'TRA020 V2.0', vehicleCount: vehicles.length, vehicleIds: vehicles.map(vehicle => vehicle.id), folders, generatedAt: new Date().toISOString() }, null, 2));
-  return zip.generateAsync({ type: 'uint8array', compression: 'STORE', streamFiles: true });
+  const dirs = [
+    'E1-1 Convenio CAE/E1-1 Convenio CAE/',
+    'E1-1 Convenio CAE/E1-2 Convenio de cesión de ahorro energético/',
+    'E1-2 Dictamen favorable/',
+    'E1-3-1 Formulario de cálculo del ahorro/E1-3-1-1 Excel/',
+    'E1-3-1 Formulario de cálculo del ahorro/E1-3-1-2 PDF/',
+    'E1-3-2 Anexo subvenciones Genérico de Transporte/E1-3-2/',
+    'E1-3-3 Facturas/', 'E1-3-4 Certificado del software/',
+    'E1-3-5 Informe/', 'E1-3-6 Certificado de cálculo parámetro r/',
+    'E1-3-7 Informe de cumplimiento de requerimientos técnicos/',
+    'E1-3-8 Compromiso del gerente/', 'E1-4 Otros documentos justificativos/'
+  ];
+  dirs.forEach(path=>zip.folder(path));
+  let total=0;
+  const add=(path,bytes)=>{if(!(bytes instanceof ArrayBuffer)&&!ArrayBuffer.isView(bytes))throw new Error('El documento debe contener un binario válido.');checkSize(bytes.byteLength,path);total+=bytes.byteLength;checkSize(total,'Los documentos del expediente',MAX_TOTAL_BYTES);zip.file(path,bytes);};
+  const signedFile=(path,id)=>add(path+(signed[id].name?.toLowerCase().endsWith('.p7m')?'.p7m':'.pdf'),signed[id].bytes);
+  add(dirs[3]+'calculo-ahorro.xlsx',fleetWorkbook(data));
+  signedFile(dirs[4]+'calculo-ahorro-firmado','calculation');
+  signedFile(dirs[5]+'anexo-i-firmado','anexo');
+  add(dirs[8]+'informe-completo.xlsx',fleetWorkbook(data));
+  signedFile(dirs[11]+'compromiso-gerente-firmado','commitment');
+  for(const [i,file] of (data.documents?.invoices || []).entries()){
+    const folder=dirs[6]+`E1-3-3-${i+1} factura ${i+1}/`;zip.folder(folder);
+    if(file.bytes)add(folder+`factura-${i+1}.pdf`,file.bytes);
+  }
+  if(data.documents?.rCertificate?.bytes)add(dirs[9]+'certificado-parametro-r.pdf',data.documents.rCertificate.bytes);
+  if(fixedDocuments.software)add(dirs[7]+'certificado-software.pdf',fixedDocuments.software);
+  if(fixedDocuments.technical)add(dirs[10]+'informe-requisitos-tecnicos.pdf',fixedDocuments.technical);
+  const bytes=await zip.generateAsync({type:'uint8array',compression:'DEFLATE',compressionOptions:{level:3}});
+  checkSize(bytes.byteLength,'ActuacionE1.zip');
+  return bytes;
 }
 
 export async function generateExport({ kind, data, annex = {}, signed = {} }, progress = () => {}) {
@@ -77,36 +106,25 @@ export async function generateExport({ kind, data, annex = {}, signed = {} }, pr
   const code = safeName(data.expediente.codigo);
   let bytes, name, type;
   progress(5,'Preparando documentos');
-  if (kind === 'anexo') {
+  if (kind === 'calculation') {
+    bytes=calculationPdf(data); name='calculo-ahorro-para-firma.pdf'; type='application/pdf';
+  } else if (kind === 'anexo') {
     bytes=await declarationPdf(data,annex); name=`${code}-anexo-i.pdf`; type='application/pdf';
   } else if (kind === 'commitment') {
     bytes=managerCommitmentPdf(data); name=`${code}-compromiso-gerente-borrador.pdf`; type='application/pdf';
   } else if (kind === 'fleet' || kind === 'fuel') {
     bytes=kind==='fleet'?fleetWorkbook(data):fuelWorkbook(data); name=kind==='fleet'?'calculo-ahorro.xlsx':'registro-repostajes-automaticos.xlsx'; type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
   } else if (kind === 'unsigned' || kind === 'ordered') {
-    if (kind==='ordered' && (!signed.anexo?.bytes || !signed.commitment?.bytes)) throw new Error('Adjunta el Anexo I y el Compromiso del Gerente antes de generar el ZIP.');
-    const zip=new JSZip(), root=rootPath(data);
-    if (kind === 'ordered') {
-      progress(12, 'Preparando actuaciones estandarizadas');
-      // Las actuaciones son independientes: se generan en paralelo para que una
-      // flota grande no deje bloqueada la interfaz durante minutos.
-      const anexoBytes = await declarationPdf(data, annex);
-      const actuationGroups = Array.isArray(data.actuations) && data.actuations.length
-        ? data.actuations.map(actuation => data.vehicles.filter(vehicle => actuation.vehicleIds?.includes(vehicle.id))).filter(group => group.length)
-        : [data.vehicles];
-      const actuationArchives = await Promise.all(actuationGroups.map((vehicles, index) => generateActuationArchive(data, vehicles, index, annex, anexoBytes)));
-      actuationArchives.forEach((actuationBytes, index) => {
-        zip.file(`${root}/ActuacionE${index + 1}.zip`, actuationBytes);
-      });
-      progress(60, `${actuationArchives.length} actuaciones preparadas`);
-      zip.file(`${root}/Solicitud de emisión de CAE - Estandarizadas.pendiente.txt`, 'El formulario de solicitud de sede debe cumplimentarse y firmarse en el trámite electrónico.');
-      zip.file(`${root}/outputs/MANIFIESTO_SOLICITUD.json`, JSON.stringify({ convention: 'MITERD: ActuacionE<n>.zip', actuationCount: actuationGroups.length, vehicleCount: data.vehicles.length, naming: 'AnexoE<n>, E<n>-1, E<n>-2, E<n>-3-1, E<n>-3-2, E<n>-4' }, null, 2));
-      progress(100, 'Actuaciones listas');
-      bytes=await zip.generateAsync({type:'uint8array',compression:'STORE',streamFiles:true},m=>progress(50+m.percent*.5,'Empaquetando solicitud'));
-      name=`Solicitud de emisión de CAE - Estandarizadas.zip`;type='application/zip';
+    if (kind==='ordered') {
+      if (!signed.anexo?.bytes || !signed.commitment?.bytes || !signed.calculation?.bytes) throw new Error('Adjunta el Anexo I, el cálculo del ahorro y el Compromiso del Gerente firmados.');
+      if(data.actuations?.length>1)throw new Error('Prepara una actuación por trabajo para asociar correctamente los documentos firmados.');
+      progress(20,'Preparando ActuacionE1');
+      bytes=await generateActuationArchive(data,signed);
+      name='ActuacionE1.zip';type='application/zip';
       progress(100,'Archivo listo');
-      return { bytes:bytes instanceof Uint8Array?bytes:new Uint8Array(bytes), name, type, elapsedMs:Math.round(performance.now()-started) };
+      return {bytes,name,type,elapsedMs:Math.round(performance.now()-started)};
     }
+    const zip=new JSZip(), root=rootPath(data);
     zip.folder(`${root}/documentos`);
     zip.folder(`${root}/outputs`);
     folderTemplate.forEach(([folder])=>zip.folder(`${root}/documentos/${folder}`));
@@ -114,6 +132,7 @@ export async function generateExport({ kind, data, annex = {}, signed = {} }, pr
     zip.file(`${root}/outputs/revision-anexo.json`,JSON.stringify(annexValuesForManifest(annex),null,2));
     progress(15,'Generando informe de flota');
     zip.file(`${root}/outputs/calculo-ahorro.xlsx`,fleetWorkbook(data));
+    zip.file(`${root}/outputs/calculo-ahorro-para-firma.pdf`,calculationPdf(data));
     zip.file(`${root}/outputs/Informe_gestor_flota.xlsx`,fleetWorkbook(data));
     progress(35,'Generando registro de repostajes');
     zip.file(`${root}/outputs/Registro_automatico_repostajes.xlsx`,fuelWorkbook(data));
@@ -136,6 +155,7 @@ export async function generateExport({ kind, data, annex = {}, signed = {} }, pr
     bytes=await zip.generateAsync({type:'uint8array',compression:'STORE',streamFiles:true},m=>progress(65+m.percent*.34,'Empaquetando archivos'));
     name=`${code}_${kind==='ordered'?'expediente_ordenado':'documentos_para_firma'}.zip`;type='application/zip';
   } else throw new Error('Tipo de descarga desconocido.');
+  checkSize(bytes.byteLength,'El archivo generado');
   progress(100,'Archivo listo');
   return { bytes:bytes instanceof Uint8Array?bytes:new Uint8Array(bytes), name, type, elapsedMs:Math.round(performance.now()-started) };
 }

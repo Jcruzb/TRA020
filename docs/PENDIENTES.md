@@ -25,3 +25,13 @@
 ## Límites explícitos
 
 No se verifican firmas electrónicas ni originalidad documental. No hay bloqueo transaccional entre ventanas: trabajar con una ventana por carpeta. La app conserva los adjuntos de revisiones anteriores en disco, pero solo vincula la revisión activa en el historial. Los documentos generados se registran por metadatos y pueden regenerarse; no se conservan automáticamente como binarios dentro del historial.
+
+## Exportación corregida (23/09/2026)
+
+La descarga final es directamente `ActuacionE1.zip`, sin envoltorio de expediente, outputs, manifiestos ni pendientes de texto. Una actuación por trabajo: los tres firmados corresponden a la selección completa y se invalidan al cambiarla.
+
+Carpetas: E1-1 Convenio CAE (subcarpetas E1-1 Convenio CAE y E1-2 Convenio de cesión de ahorro energético), E1-2 Dictamen favorable, E1-3-1 Formulario de cálculo del ahorro (E1-3-1-1 Excel y E1-3-1-2 PDF), E1-3-2 Anexo subvenciones Genérico de Transporte (subcarpeta E1-3-2), E1-3-3 Facturas, E1-3-4 Certificado del software, E1-3-5 Informe, E1-3-6 Certificado de cálculo parámetro r, E1-3-7 Informe de cumplimiento de requerimientos técnicos, E1-3-8 Compromiso del gerente y E1-4 Otros documentos justificativos. Los documentos no recibidos dejan carpetas vacías.
+
+Se exige cargar cálculo PDF, Anexo I y Compromiso firmados. Se preservan sus bytes. El PDF de cálculo es preliminar, no el formulario oficial pendiente. El informe Excel conserva todas las columnas.
+
+Guía local «Instrucciones para realizar la solicitud», apartado 7: 10 MB por fichero y 50 MB por envío. Se controlan binarios, volumen interno y ZIP final usando MB decimales conservadores; se bloquea el exceso. Los documentos añadidos a la sede fuera de la app no pueden contabilizarse automáticamente.
