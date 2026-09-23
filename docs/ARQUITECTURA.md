@@ -55,3 +55,16 @@ Carpetas: E1-1 Convenio CAE (subcarpetas E1-1 Convenio CAE y E1-2 Convenio de ce
 Se exige cargar cálculo PDF, Anexo I y Compromiso firmados. Se preservan sus bytes. El PDF de cálculo es preliminar, no el formulario oficial pendiente. El informe Excel conserva todas las columnas.
 
 Guía local «Instrucciones para realizar la solicitud», apartado 7: 10 MB por fichero y 50 MB por envío. Se controlan binarios, volumen interno y ZIP final usando MB decimales conservadores; se bloquea el exceso. Los documentos añadidos a la sede fuera de la app no pueden contabilizarse automáticamente.
+
+## Organización React
+
+- `src/main.jsx`: punto de entrada; monta `App` e importa estilos.
+- `src/App.jsx`: composición del marco común y navegación entre pantallas.
+- `src/pages/`: clientes, vehículos, documentos, expediente ordenado e historial. Reciben datos y acciones mediante props explícitas.
+- `src/components/`: formulario, campos, confirmación, métricas, descarga de documentos y carga de firmados reutilizables. `components.jsx` conserva los exports públicos.
+- `src/hooks/useExpediente.js`: coordina el ciclo del trabajo, historial, adjuntos y exportaciones. Mantiene las referencias necesarias para evitar guardar revisiones obsoletas.
+- `src/hooks/useClientSearch.js`: búsqueda con descarte de respuestas cuando cambia la consulta.
+- `src/hooks/useVehicleSelection.js`: selección, evaluación, filtros y paginación derivados.
+- `src/domain/`: reglas y generación de archivos independientes de las vistas.
+
+`npm run format` aplica formato a las fuentes y `npm run format:check` lo comprueba. La plantilla PDF generada se excluye.
